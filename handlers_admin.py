@@ -362,11 +362,19 @@ async def admin_ae(call: CallbackQuery):
 async def noop(call: CallbackQuery): await call.answer()
 
 # ══════════════════════════════════════════════════════════════════════
-#   STATE MACHINE
+#   STATE MACHINE — faqat admin + aktiv state bo'lganda ishlaydi
 # ══════════════════════════════════════════════════════════════════════
-@router.message(F.text | F.video | F.document | F.photo)
+from aiogram.filters import Filter
+
+class AdminStateFilter(Filter):
+    async def __call__(self, msg: Message) -> bool:
+        if not is_admin(msg.from_user.id):
+            return False
+        sd = db.get_state(msg.from_user.id)
+        return sd["s"] is not None
+
+@router.message(AdminStateFilter(), F.text | F.video | F.document | F.photo)
 async def admin_fsm(msg: Message, bot: Bot):
-    if not is_admin(msg.from_user.id): return
     sd = db.get_state(msg.from_user.id)
     state = sd["s"]; extra = sd["e"]
     if not state: return

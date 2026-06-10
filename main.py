@@ -3,13 +3,19 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from config import BOT_TOKEN
 from handlers_admin import router as admin_router
-from handlers_user import router as user_router
+from handlers_user  import router as user_router
 from keep_alive import start_web, self_ping
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+log = logging.getLogger(__name__)
 
 bot = Bot(token=BOT_TOKEN, parse_mode=None)
 dp  = Dispatcher()
+
+# MUHIM: admin router birinchi, user router ikkinchi
 dp.include_router(admin_router)
 dp.include_router(user_router)
 
@@ -21,8 +27,11 @@ async def main():
         BotCommand(command="admin", description="Admin panel"),
     ])
     me = await bot.get_me()
-    logging.info(f"Bot: @{me.username}")
-    await dp.start_polling(bot, allowed_updates=["message","callback_query"])
+    log.info(f"Bot ishga tushdi: @{me.username}")
+    await dp.start_polling(
+        bot,
+        allowed_updates=["message", "callback_query"]
+    )
 
 if __name__ == "__main__":
     asyncio.run(main())
